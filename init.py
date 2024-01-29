@@ -1,7 +1,7 @@
 import os
 
 BOT_API_TOKEN = os.getenv("BOT_API_TOKEN")
-QUOTE_API_TOKEN = os.getenv("DATA_API_TOKEN")
+QUOTE_API_TOKEN = os.getenv("QUOTE_API_TOKEN")
 
 import requests
 import json
@@ -44,18 +44,15 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 async def today(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     quote_category = 'success'
-    api_urls = {'quote' : 'https://api.api-ninjas.com/v1/quotes?category={}'.format(quote_category),
-                'currency' : 'https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/eur/jpy.json'
+    api_urls = {'quote_url' : 'https://api.api-ninjas.com/v1/quotes?category={}'.format(quote_category),
+                'currency_url' : 'https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd/rub.json',
+                'weather_url' : ''
                 }
     
-    quote_response = requests.get(api_urls, headers={'X-Api-Key': QUOTE_API_TOKEN})
-
-    if quote_response.status_code == requests.codes.ok:
-        response = quote_response.json()[0]
-        await update.message.reply_text(rf"<i>{response['quote']}</i> - <ins>{response['author']}</ins>", parse_mode="HTML")
-    else:
-        print("Error:", response.status_code, response.text)
-        await update.message.reply_text("Nothing to display :(")
+    responses = {'quote' : requests.get(api_urls['quote_url'], headers={'X-Api-Key': QUOTE_API_TOKEN}).json(),
+                'currency' : requests.get(api_urls['currency_url']).json()
+                }
+    await update.message.reply_text(f"<b>Quote:</b>\n<i>{responses['quote'][0]['quote']}</i> - <ins>{responses['quote'][0]['author']}</ins>\n<b>Currency rate:</b>\n<b>1 USD</b> = <b>{responses['currency']['rub']} RUB</b>", parse_mode="HTML")
 
 
 
